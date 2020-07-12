@@ -1,5 +1,7 @@
 {
     "files.associations": {
         "iosfwd": "cpp"
-    }
+    },
+    "python.pythonPath": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "python.linting.enabled": false
 }
