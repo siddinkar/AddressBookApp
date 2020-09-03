@@ -1,11 +1,12 @@
-import { CONTACTS } from "../../data/dummyData";
 import Contact from "../../models/Contact";
 import {
   TOGGLE_FAVORITE,
   CREATE_CONTACT,
   UPDATE_CONTACT,
   DELETE_CONTACT,
+  SET_CONTACTS,
 } from "../actions/contacts";
+import { ActionSheet } from "native-base";
 
 const initialState = {
   contacts: [],
@@ -14,15 +15,19 @@ const initialState = {
 
 const contactsReducer = (state = initialState, action) => {
   switch (action.type) {
+    case SET_CONTACTS:
+      return {
+        contacts: action.contacts,
+        favoriteContacts: action.favoriteContacts,
+      };
     case CREATE_CONTACT:
       const newContact = new Contact(
-        Math.random().toString(),
+        action.contactData.id,
         action.contactData.name,
         action.contactData.phone,
         action.contactData.email,
         action.contactData.address,
-        false,
-        action.contactData.image,
+        action.contactData.isFavorite,
         action.contactData.notes
       );
       return { ...state, contacts: state.contacts.concat(newContact) };
@@ -37,7 +42,6 @@ const contactsReducer = (state = initialState, action) => {
         action.contactData.email,
         action.contactData.address,
         state.contacts[contactIndex].isFavorite,
-        action.contactData.image,
         action.contactData.notes
       );
       const updatedContactsList = [...state.contacts];

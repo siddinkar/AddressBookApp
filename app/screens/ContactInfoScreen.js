@@ -8,6 +8,7 @@ import {
   Image,
   Alert,
 } from "react-native";
+import { AsyncStorage } from "react-native";
 import { Divider } from "react-native-elements";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -16,6 +17,7 @@ import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import HeaderButton from "../components/HeaderButton";
 import { toggleFavorite } from "../store/actions/contacts";
 import * as contactActions from "../store/actions/contacts";
+import * as authActions from "../store/actions/auth";
 
 const ContactInfoScreen = (props) => {
   const availableContacts = useSelector((state) => state.contacts.contacts);
@@ -24,11 +26,40 @@ const ContactInfoScreen = (props) => {
   const currentContactIsFav = useSelector((state) =>
     state.contacts.favoriteContacts.some((contact) => contact.id === conId)
   );
+  const [error, setError] = useState(null);
+
+  if (error === "Login") {
+    Alert.alert(
+      "Session has expired",
+      "You will be redirected to the Login page",
+      [
+        {
+          text: "Ok",
+          style: "default",
+          onPress: () => {
+            dispatch(authActions.logout());
+          },
+        },
+      ]
+    );
+  }
 
   const dispatch = useDispatch();
 
-  const toggleFavoriteHandler = useCallback(() => {
-    dispatch(toggleFavorite(conId));
+  const toggleFavoriteHandler = useCallback(async () => {
+    try {
+      await dispatch(toggleFavorite(conId, currentContactIsFav));
+    } catch (err) {
+      setError(err.message);
+    }
+  }, [dispatch, conId, currentContactIsFav]);
+
+  const deleteAContact = useCallback(async () => {
+    try {
+      await dispatch(contactActions.deleteContact(conId));
+    } catch (err) {
+      setError(err.message);
+    }
   }, [dispatch, conId]);
 
   useEffect(() => {
@@ -56,8 +87,8 @@ const ContactInfoScreen = (props) => {
           text: "Yes",
           style: "destructive",
           onPress: () => {
+            deleteAContact();
             props.navigation.goBack();
-            dispatch(contactActions.deleteContact(conId));
           },
         },
       ]

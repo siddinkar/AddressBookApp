@@ -1,25 +1,46 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   StyleSheet,
   FlatList,
   TouchableOpacity,
   Text,
+  Alert,
 } from "react-native";
+import { AsyncStorage } from "react-native";
 import SearchBarOBJ from "../components/SearchBarOBJ";
 import { useSelector } from "react-redux";
 import Card from "../components/Card";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import HomeScreen from "./HomeScreen";
+import * as authActions from "../store/actions/auth";
+import { useDispatch } from "react-redux";
 
 const FavoritesScreen = (props) => {
   const favContacts = useSelector((state) => state.contacts.favoriteContacts);
-
+  const dispatch = useDispatch();
+  const [error, setError] = useState(null);
   if (favContacts.length === 0 || !favContacts) {
     return (
       <View style={styles.fallback}>
         <Text>No favorite contacts found. Start adding some!</Text>
       </View>
+    );
+  }
+
+  if (error === "Login") {
+    Alert.alert(
+      "Session has expired",
+      "You will be redirected to the Login page",
+      [
+        {
+          text: "Ok",
+          style: "default",
+          onPress: () => {
+            dispatch(authActions.logout());
+          },
+        },
+      ]
     );
   }
 

@@ -6,13 +6,18 @@ import {
   Text,
   Platform,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleFavorite } from "../store/actions/contacts";
 import Swipeout from "react-native-swipeout";
+import { set } from "react-native-reanimated";
+import * as authActions from "../store/actions/auth";
+import { useNavigation } from "@react-navigation/native";
 
 const Card = (props) => {
+  const [error, setError] = useState(null);
   const conId = props.id;
   const currentContactIsFav = useSelector((state) =>
     state.contacts.favoriteContacts.some((contact) => contact.id === conId)
@@ -20,9 +25,30 @@ const Card = (props) => {
 
   const dispatch = useDispatch();
 
-  const toggleFavoriteHandler = useCallback(() => {
-    dispatch(toggleFavorite(conId));
+  const toggleFavoriteHandler = useCallback(async () => {
+    setError(null);
+    try {
+      await dispatch(toggleFavorite(conId, currentContactIsFav));
+    } catch (err) {
+      setError(err.message);
+    }
   }, [dispatch, conId]);
+
+  if (error === "Login") {
+    Alert.alert(
+      "Session has expired",
+      "You will be redirected to the Login page",
+      [
+        {
+          text: "Ok",
+          style: "default",
+          onPress: () => {
+            dispatch(authActions.logout());
+          },
+        },
+      ]
+    );
+  }
 
   return (
     <View style={{ ...styles.card }}>

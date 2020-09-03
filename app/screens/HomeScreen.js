@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   StyleSheet,
   Text,
@@ -20,18 +20,20 @@ import {
   ScrollView,
   TextInput,
   List,
+  ActivityIndicator,
 } from "react-native";
-import { SearchBar } from "react-native-elements";
+import { AsyncStorage } from "react-native";
 
-import Footer from "../components/Footer";
 import Card from "../components/Card";
 import SearchBarOBJ from "../components/SearchBarOBJ";
-import TextInputComponent from "../components/TextInputComponent";
-import { Colors } from "react-native/Libraries/NewAppScreen";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { useSelector, useDispatch } from "react-redux";
+import * as contactActions from "../store/actions/contacts";
+import * as authActions from "../store/actions/auth";
 
 const HomeScreen = (props) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [contactName, setContactName] = useState([]);
   const dispatch = useDispatch();
 
@@ -48,7 +50,53 @@ const HomeScreen = (props) => {
     });
   };
 
+  const loadContacts = useCallback(async () => {
+    setError(null);
+    try {
+      await dispatch(contactActions.fetchProducts());
+    } catch (err) {
+      setError(err.message);
+    }
+  });
+
+  useEffect(() => {
+    setIsLoading(true);
+    loadContacts().then(() => {
+      setIsLoading(false);
+    });
+  }, [dispatch, setError, setIsLoading]);
+
   const currentContacts = useSelector((state) => state.contacts.contacts);
+
+  if (error === "Login") {
+    Alert.alert(
+      "Session has expired",
+      "You will be redirected to the Login page",
+      [
+        {
+          text: "Ok",
+          style: "default",
+          onPress: () => {
+            dispatch(authActions.logout());
+          },
+        },
+      ]
+    );
+  } else if (error) {
+    return (
+      <View style={styles.center}>
+        <Text>{error}</Text>
+      </View>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.screenMain}>
@@ -61,8 +109,10 @@ const HomeScreen = (props) => {
         </View>
 
         <FlatList
-          keyExtractor={(item, index) => item.id}
+          onRefresh={loadContacts}
+          refreshing={isLoading}
           data={currentContacts}
+          keyExtractor={(item, index) => item.id}
           renderItem={(itemData) => (
             <TouchableOpacity
               style={styles.cardContainer}
@@ -155,6 +205,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   bar: { width: "100%" },
+  fallback: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    fontWeight: "200",
+  },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
 
 export default HomeScreen;

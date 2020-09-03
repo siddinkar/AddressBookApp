@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer } from "react";
+import React, { useCallback, useEffect, useReducer, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -10,12 +10,15 @@ import {
   Alert,
   Button,
   Platform,
+  KeyboardAvoidingView,
 } from "react-native";
+import { AsyncStorage } from "react-native";
 import { Divider } from "react-native-elements";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import HeaderButton from "../components/HeaderButton";
 import { useSelector, useDispatch } from "react-redux";
 import * as contactActions from "../store/actions/contacts";
+import * as authActions from "../store/actions/auth";
 
 const FORM_UPDATE = "UPDATE";
 
@@ -30,11 +33,7 @@ const formReducer = (state, action) => {
       [action.input]: action.isValid,
     };
     let updatedFormIsValid = true;
-    if (
-      !updatedValidities.name ||
-      !updatedValidities.phoneNum ||
-      !updatedValidities.email
-    ) {
+    if (!updatedValidities.name || !updatedValidities.phoneNum) {
       updatedFormIsValid = false;
     }
     return {
@@ -53,7 +52,7 @@ const EditContactScreen = (props) => {
   );
 
   const dispatch = useDispatch();
-
+  const [error, setError] = useState(null);
   const [formState, dispatchFormState] = useReducer(formReducer, {
     inputValues: {
       name: contactId ? Contact.name : "",
@@ -72,35 +71,55 @@ const EditContactScreen = (props) => {
     formIsValid: contactId ? true : false,
   });
 
-  const submitHandler = useCallback(() => {
-    console.log(formState.inputValidities.name);
-    console.log(formState.inputValidities.phoneNum);
+  if (error === "Login") {
+    Alert.alert(
+      "Session has expired",
+      "You will be redirected to the Login page",
+      [
+        {
+          text: "Ok",
+          style: "default",
+          onPress: () => {
+            dispatch(authActions.logout());
+          },
+        },
+      ]
+    );
+  }
 
+  const submitHandler = useCallback(async () => {
     if (formState.formIsValid) {
       if (Contact) {
-        dispatch(
-          contactActions.updateContact(
-            contactId,
-            formState.inputValues.name,
-            formState.inputValues.phoneNum,
-            formState.inputValues.email,
-            formState.inputValues.address,
-            "imageURL",
-            formState.inputValues.notes
-          )
-        );
+        try {
+          await dispatch(
+            contactActions.updateContact(
+              contactId,
+              formState.inputValues.name,
+              formState.inputValues.phoneNum,
+              formState.inputValues.email,
+              formState.inputValues.address,
+              formState.inputValues.notes
+            )
+          );
+        } catch (err) {
+          setError(err.message);
+        }
       } else {
-        dispatch(
-          contactActions.createContact(
-            Math.random().toString(),
-            formState.inputValues.name,
-            formState.inputValues.phoneNum,
-            formState.inputValues.email,
-            formState.inputValues.address,
-            "imageURL",
-            formState.inputValues.notes
-          )
-        );
+        try {
+          await dispatch(
+            contactActions.createContact(
+              contactId,
+              formState.inputValues.name,
+              formState.inputValues.phoneNum,
+              formState.inputValues.email,
+              formState.inputValues.address,
+              false,
+              formState.inputValues.notes
+            )
+          );
+        } catch (err) {
+          setError(err.message);
+        }
       }
       props.navigation.goBack();
     } else {
@@ -186,9 +205,11 @@ const EditContactScreen = (props) => {
   };
 
   const emailHandler = (text) => {
-    let isValid = true;
+    let isValid = false;
     var match = text.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);
-    if (text.trim().length > 0 && !match) {
+    if (text.length === 0) {
+      isValid = true;
+    } else if (text.trim().length > 0 && !match) {
       isValid = false;
     }
     dispatchFormState({
@@ -200,121 +221,123 @@ const EditContactScreen = (props) => {
   };
 
   return (
-    <ScrollView>
-      <View style={styles.screenMain}>
-        <View style={styles.topSection}>
-          <View style={styles.pfp}>
-            <TouchableOpacity>
-              <Image
-                source={require("../assets/blankUser.png")}
-                style={styles.pfpImage}
+    <KeyboardAvoidingView>
+      <ScrollView>
+        <View style={styles.screenMain}>
+          <View style={styles.topSection}>
+            <View style={styles.pfp}>
+              <TouchableOpacity>
+                <Image
+                  source={require("../assets/blankUser.png")}
+                  style={styles.pfpImage}
+                />
+              </TouchableOpacity>
+            </View>
+            <Button title={Contact ? "Change Photo" : "Add Photo"} />
+            <TextInput
+              style={styles.name}
+              value={formState.inputValues.name}
+              onChangeText={regTextChangeHandler.bind(this, "name")}
+              placeholder="Enter Name"
+              autoCorrect={false}
+              maxLength={40}
+              autoCapitalize="none"
+              returnKeyType="done"
+            />
+          </View>
+          <Divider />
+          <View style={styles.middleSection}>
+            <View style={styles.info}>
+              <Text style={({ fontWeight: "600" }, { marginBottom: 3 })}>
+                Phone
+              </Text>
+              <TextInput
+                style={
+                  ({ fontWeight: "300" },
+                  {
+                    color: formState.inputValidities.phoneNum
+                      ? "#007aff"
+                      : "#000",
+                  })
+                }
+                value={formState.inputValues.phoneNum}
+                onChangeText={phoneHandler}
+                placeholder="Enter Phone Number"
+                autoCorrect={false}
+                maxLength={17}
+                keyboardType="phone-pad"
+                returnKeyType="done"
               />
+            </View>
+            <Divider />
+            <View style={styles.info}>
+              <Text style={({ fontWeight: "600" }, { marginBottom: 3 })}>
+                Email
+              </Text>
+              <TextInput
+                style={{ fontWeight: "300" }}
+                value={formState.inputValues.email}
+                onChangeText={emailHandler}
+                placeholder="Enter Email"
+                autoCorrect={false}
+                maxLength={50}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                returnKeyType="done"
+              />
+            </View>
+            <Divider />
+            <View style={styles.info}>
+              <Text style={({ fontWeight: "600" }, { marginBottom: 3 })}>
+                Address
+              </Text>
+              <TextInput
+                style={{ fontWeight: "300" }}
+                value={formState.inputValues.address}
+                onChangeText={regTextChangeHandler.bind(this, "address")}
+                placeholder="Enter Address"
+                autoCorrect={false}
+                maxLength={90}
+                numberOfLines={2}
+                numberOfLines={2}
+                autoCapitalize="none"
+                returnKeyType="done"
+              />
+            </View>
+            <Divider />
+            <View style={styles.info}>
+              <Text style={({ fontWeight: "600" }, { marginBottom: 3 })}>
+                Notes
+              </Text>
+              <TextInput
+                style={{ fontWeight: "300" }}
+                value={formState.inputValues.notes}
+                onChangeText={regTextChangeHandler.bind(this, "notes")}
+                placeholder="Add Notes"
+                autoCorrect={false}
+                numberOfLines={6}
+                maxLength={200}
+                autoCorrect
+                autoCapitalize="sentences"
+                returnKeyType="done"
+              />
+            </View>
+            <Divider />
+          </View>
+          <Divider />
+          <View style={styles.bottomSection}>
+            <TouchableOpacity style={styles.delete} onPress={discardChanges}>
+              <Text style={{ flex: 1, color: "red" }}>Discard Changes</Text>
             </TouchableOpacity>
-          </View>
-          <Button title={Contact ? "Change Photo" : "Add Photo"} />
-          <TextInput
-            style={styles.name}
-            value={formState.inputValues.name}
-            onChangeText={regTextChangeHandler.bind(this, "name")}
-            placeholder="Enter Name"
-            autoCorrect={false}
-            maxLength={40}
-            autoCapitalize="none"
-            returnKeyType="done"
-          />
-        </View>
-        <Divider />
-        <View style={styles.middleSection}>
-          <View style={styles.info}>
-            <Text style={({ fontWeight: "600" }, { marginBottom: 3 })}>
-              Phone
-            </Text>
-            <TextInput
-              style={
-                ({ fontWeight: "300" },
-                {
-                  color: formState.inputValidities.phoneNum
-                    ? "#007aff"
-                    : "#000",
-                })
-              }
-              value={formState.inputValues.phoneNum}
-              onChangeText={phoneHandler}
-              placeholder="Enter Phone Number"
-              autoCorrect={false}
-              maxLength={17}
-              keyboardType="phone-pad"
-              returnKeyType="done"
-            />
-          </View>
-          <Divider />
-          <View style={styles.info}>
-            <Text style={({ fontWeight: "600" }, { marginBottom: 3 })}>
-              Email
-            </Text>
-            <TextInput
-              style={{ fontWeight: "300" }}
-              value={formState.inputValues.email}
-              onChangeText={emailHandler}
-              placeholder="Enter Email"
-              autoCorrect={false}
-              maxLength={50}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              returnKeyType="done"
-            />
-          </View>
-          <Divider />
-          <View style={styles.info}>
-            <Text style={({ fontWeight: "600" }, { marginBottom: 3 })}>
-              Address
-            </Text>
-            <TextInput
-              style={{ fontWeight: "300" }}
-              value={formState.inputValues.address}
-              onChangeText={regTextChangeHandler.bind(this, "address")}
-              placeholder="Enter Address"
-              autoCorrect={false}
-              maxLength={90}
-              numberOfLines={2}
-              numberOfLines={2}
-              autoCapitalize="none"
-              returnKeyType="done"
-            />
-          </View>
-          <Divider />
-          <View style={styles.info}>
-            <Text style={({ fontWeight: "600" }, { marginBottom: 3 })}>
-              Notes
-            </Text>
-            <TextInput
-              style={{ fontWeight: "300" }}
-              value={formState.inputValues.notes}
-              onChangeText={regTextChangeHandler.bind(this, "notes")}
-              placeholder="Add Notes"
-              autoCorrect={false}
-              numberOfLines={6}
-              maxLength={200}
-              autoCorrect
-              autoCapitalize="sentences"
-              returnKeyType="done"
-            />
+            <Divider />
           </View>
           <Divider />
         </View>
-        <Divider />
-        <View style={styles.bottomSection}>
-          <TouchableOpacity style={styles.delete} onPress={discardChanges}>
-            <Text style={{ flex: 1, color: "red" }}>Discard Changes</Text>
-          </TouchableOpacity>
-          <Divider />
+        <View style={{ height: 400 }}>
+          <View></View>
         </View>
-        <Divider />
-      </View>
-      <View style={{ height: 400 }}>
-        <View></View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
