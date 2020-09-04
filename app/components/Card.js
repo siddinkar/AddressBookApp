@@ -1,3 +1,7 @@
+/* 
+This is the card component on the home and favorites screen on which the contacts are displayed.
+*/
+
 import React, { useState, useCallback, useEffect } from "react";
 import {
   View,
@@ -11,10 +15,7 @@ import {
 import Icon from "react-native-vector-icons/Ionicons";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleFavorite } from "../store/actions/contacts";
-import Swipeout from "react-native-swipeout";
-import { set } from "react-native-reanimated";
 import * as authActions from "../store/actions/auth";
-import { useNavigation } from "@react-navigation/native";
 
 const Card = (props) => {
   const [error, setError] = useState(null);
@@ -25,6 +26,7 @@ const Card = (props) => {
 
   const dispatch = useDispatch();
 
+  //func to switch contacts in and out of favorites
   const toggleFavoriteHandler = useCallback(async () => {
     setError(null);
     try {
@@ -34,22 +36,7 @@ const Card = (props) => {
     }
   }, [dispatch, conId]);
 
-  if (error === "Login") {
-    Alert.alert(
-      "Session has expired",
-      "You will be redirected to the Login page",
-      [
-        {
-          text: "Ok",
-          style: "default",
-          onPress: () => {
-            dispatch(authActions.logout());
-          },
-        },
-      ]
-    );
-  }
-
+  //JSX for component
   return (
     <View style={{ ...styles.card }}>
       <View style={styles.cardLayoutLeft}>
@@ -89,6 +76,7 @@ const Card = (props) => {
   );
 };
 
+//Stylesheets
 const styles = StyleSheet.create({
   card: {
     flexDirection: "row",

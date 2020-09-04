@@ -1,3 +1,7 @@
+/*
+This screen is for new users who are signing up. They will also be logged in after their account is created
+*/
+
 import React, { useState, useReducer, useEffect } from "react";
 import {
   View,
@@ -16,6 +20,7 @@ import Input from "../components/Input";
 
 const FORM_UPDATE = "UPDATE";
 
+// this watches the values, validity, and overall form validity of all the inputs on this screen
 const formReducer = (state, action) => {
   if (action.type === FORM_UPDATE) {
     const updatedValues = {
@@ -44,10 +49,13 @@ const formReducer = (state, action) => {
 };
 
 const SignupScreen = (props) => {
+  //global vars
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
   const [APIError, setAPIError] = useState("");
+
+  //THis sets up the reducer above and log sthe values and validities
   const [formState, dispatchFormState] = useReducer(formReducer, {
     inputValues: {
       username: "",
@@ -62,6 +70,7 @@ const SignupScreen = (props) => {
     formIsValid: false,
   });
 
+  //This is a generic text handler which changes the values of the texts in individual variables in the reducer above
   const textChangeHandler = (inputIdentifier, text) => {
     let isValid = false;
     let cleaned = text.trim();
@@ -86,6 +95,8 @@ const SignupScreen = (props) => {
     });
   };
 
+  //Checka all validities and updates the Redux State.
+  //Also this sends the api request and catches all errors to display to user
   const submitHandler = async () => {
     if (formState.formIsValid) {
       setIsLoading(true);
@@ -109,6 +120,7 @@ const SignupScreen = (props) => {
     }
   };
 
+  //JSX
   return (
     <View style={styles.screen}>
       <View style={styles.textContainer}>
@@ -160,6 +172,7 @@ const SignupScreen = (props) => {
   );
 };
 
+//StyleSheet
 const styles = StyleSheet.create({
   screen: { flex: 1, justifyContent: "center", alignItems: "center" },
   textContainer: {

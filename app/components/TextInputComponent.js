@@ -1,13 +1,20 @@
+/*
+Text Input Component for input testing (not to be used in production)
+*/
+
 import React, { useState } from "react";
 import { TextInput, Button, View, StyleSheet } from "react-native";
 
 const TextInputComponent = (props) => {
+  //hold inputted value in this
   const [enteredName, setEnteredName] = useState("");
 
+  //update input value
   const nameInputHandler = (enteredText) => {
     setEnteredName(enteredText);
   };
 
+  //JSX
   return (
     <View style={styles.inputContainer}>
       <TextInput
@@ -24,6 +31,7 @@ const TextInputComponent = (props) => {
   );
 };
 
+//StyleSheet
 const styles = StyleSheet.create({
   inputContainer: {
     width: "80%",

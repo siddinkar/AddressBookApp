@@ -1,3 +1,7 @@
+/*
+This file handles all the api requests dealing with creating, updating, deleting contacts.
+*/
+
 import Contact from "../../models/Contact";
 
 export const TOGGLE_FAVORITE = "TOGGLE_FAVORITE";
@@ -6,9 +10,12 @@ export const DELETE_CONTACT = "DELETE_CONTACT";
 export const UPDATE_CONTACT = "UPDATE_CONTACT";
 export const SET_CONTACTS = "SET_CONTACTS";
 
+//This is the func taht first fetches all the current data for a given user in the database when the app starts
 export const fetchProducts = () => {
   return async (dispatch, getState) => {
+    //needs a token for authentication
     const token = getState().auth.token;
+
     try {
       const response = await fetch("http://127.0.0.1:5000/api/contacts", {
         method: "GET",
@@ -17,16 +24,18 @@ export const fetchProducts = () => {
           "x-access-token": token,
         },
       });
-
+      //special error that send you back to auth page
       if (response.status === 401) {
         throw new Error("Login");
       } else if (!response.ok) {
         throw new Error("Something went wrong");
       }
-
+      //parse JSON data
       const resData = await response.json();
       const loadedContacts = [];
       const favLoadedContacts = [];
+      //upload all the data reviced in JSON to memory to be changed in the application
+      //THis sets the favorites and the non favorites based on database values
       for (const key in resData) {
         if (resData[key].isFav) {
           favLoadedContacts.push(
@@ -53,7 +62,7 @@ export const fetchProducts = () => {
           )
         );
       }
-
+      //deals with in memeory obj to display to user
       dispatch({
         type: SET_CONTACTS,
         contacts: loadedContacts,
@@ -65,9 +74,12 @@ export const fetchProducts = () => {
   };
 };
 
+//This function specificalyy updates the isFav in the database
 export const toggleFavorite = (id, isFav) => {
   return async (dispatch, getState) => {
+    //needs token for auth
     const token = getState().auth.token;
+    //send put request to update in api
     const response = await fetch("http://127.0.0.1:5000/api/contacts", {
       method: "PUT",
       headers: {
@@ -79,20 +91,24 @@ export const toggleFavorite = (id, isFav) => {
         isFav: !isFav,
       }),
     });
-
+    //special error that navs user to auth page if thrown
     if (response.status === 401) {
       throw new Error("Login");
     } else if (!response.ok) {
       throw new Error("Something went wrong");
     }
     console.log("request sent to api");
+    //deals with in memeory obj to display to user
     dispatch({ type: TOGGLE_FAVORITE, contactId: id });
   };
 };
 
+//func delete contacts from memory and database
 export const deleteContact = (id) => {
   return async (dispatch, getState) => {
+    //needs token for auth
     const token = getState().auth.token;
+    //Delete req send to api
     const response = await fetch("http://127.0.0.1:5000/api/contacts", {
       method: "DELETE",
       headers: {
@@ -103,17 +119,18 @@ export const deleteContact = (id) => {
         public_id: id,
       }),
     });
-
+    //special error which navs user to auth page
     if (response.status === 401) {
       throw new Error("Login");
     } else if (!response.ok) {
       throw new Error("Something went wrong");
     }
-
+    //deals with in memeory obj to display to user
     dispatch({ type: DELETE_CONTACT, contactId: id });
   };
 };
 
+//creates a contact in memory and in db through api requests
 export const createContact = (
   fullName,
   phoneNum,
@@ -123,7 +140,9 @@ export const createContact = (
   notesForPerson
 ) => {
   return async (dispatch, getState) => {
+    //needs token for auth
     const token = getState().auth.token;
+    //post request sent to api
     const response = await fetch("http://127.0.0.1:5000/api/contacts", {
       method: "POST",
       headers: {
@@ -140,18 +159,18 @@ export const createContact = (
       }),
     });
     console.log("request sent to api");
-
+    //special error code which sends user to auth page
     if (response.status === 401) {
       throw new Error("Login");
     } else if (!response.ok) {
       throw new Error("Something went wrong");
     }
-
+    //parses JSON data
     const resData = await response.json();
     console.log(resData);
 
     const contact = resData["data"];
-
+    //uses parsed data to create obj in memeory for user to view in app
     dispatch({
       type: CREATE_CONTACT,
       contactData: {
@@ -167,6 +186,7 @@ export const createContact = (
   };
 };
 
+//updates a contact in memory and in db
 export const updateContact = (
   id,
   fullName,
@@ -176,7 +196,9 @@ export const updateContact = (
   notesForPerson
 ) => {
   return async (dispatch, getState) => {
+    //needs token for auth
     const token = getState().auth.token;
+    //updates values of the conact and makes a put req
     const response = await fetch("http://127.0.0.1:5000/api/contacts", {
       method: "PUT",
       headers: {
@@ -193,12 +215,14 @@ export const updateContact = (
       }),
     });
     console.log("request sent to api");
+
+    //code logs user out if thrown
     if (response.status === 401) {
       throw new Error("Login");
     } else if (!response.ok) {
       throw new Error("Something went wrong");
     }
-
+    //deals with in memeory obj to display to user
     dispatch({
       type: UPDATE_CONTACT,
       conId: id,

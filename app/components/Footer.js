@@ -1,3 +1,7 @@
+/*
+Footer component for Home Screen
+*/
+
 import React from "react";
 import {
   StyleSheet,

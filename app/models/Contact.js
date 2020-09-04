@@ -1,3 +1,7 @@
+/*
+Basic contact class to create Contact objects and store them
+*/
+
 class Contact {
   constructor(id, name, phone, email, address, isFavorite, notes) {
     this.id = id;

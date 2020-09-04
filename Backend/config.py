@@ -1,6 +1,6 @@
 import os
 
-# You need to replace the next values with the appropriate values for your configuration
+# This is the setup for the local server on machine
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 SQLALCHEMY_ECHO = False

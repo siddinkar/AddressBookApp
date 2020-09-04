@@ -1,10 +1,16 @@
+/*
+Generic Search bar for screens
+*/
+
 import React, { useState } from "react";
 import { StyleSheet, Text, Touchable, View } from "react-native";
 import { SearchBar } from "react-native-elements";
 
 const SearchBarOBJ = (props) => {
+  //hold value of searchbar in "state"
   const [state, setState] = useState("");
 
+  //JSX
   return (
     <View style={styles.header}>
       <SearchBar
@@ -23,6 +29,7 @@ const SearchBarOBJ = (props) => {
   );
 };
 
+//StyleSheet
 const styles = StyleSheet.create({
   bar: {
     backgroundColor: "white",

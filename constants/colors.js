@@ -1,3 +1,7 @@
+/*
+Frequently used colors
+*/
+
 export default {
   primary: "#ff003f",
   accent: "#c717fc",

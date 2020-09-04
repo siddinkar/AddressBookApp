@@ -1,11 +1,18 @@
+/*
+Generic Input component for login and signup screens
+*/
+
 import React, { useReducer, useState, useCallback } from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/Foundation";
 import { signup } from "../store/actions/auth";
 
 const Input = (props) => {
+  //add validity/error vars to potenially print error messages if they occur
   let validity = props.validity;
   let err = props.isAPIError;
+
+  //JSX
   return (
     <View style={styles.formControl}>
       <View style={styles.input}>
@@ -38,6 +45,7 @@ const Input = (props) => {
   );
 };
 
+//Stylesheet
 const styles = StyleSheet.create({
   input: {
     height: 50,

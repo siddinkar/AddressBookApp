@@ -1,3 +1,9 @@
+/*
+This screen displays the complete info of the contact you click on from the Home or Favorite Screen.
+From this screen, you can nav back to Home or Favorite Screen, nav to the edit contact Screen, delete a contact, 
+and favorite a contact.
+*/
+
 import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
@@ -20,6 +26,7 @@ import * as contactActions from "../store/actions/contacts";
 import * as authActions from "../store/actions/auth";
 
 const ContactInfoScreen = (props) => {
+  //global vars
   const availableContacts = useSelector((state) => state.contacts.contacts);
   const conId = props.navigation.getParam("CONTACTID");
   const selectedContact = availableContacts.find((con) => con.id === conId);
@@ -28,6 +35,8 @@ const ContactInfoScreen = (props) => {
   );
   const [error, setError] = useState(null);
 
+  //This is running block that always checks if the error var gets updated to "Login"
+  //If api sends login error, you are logged out
   if (error === "Login") {
     Alert.alert(
       "Session has expired",
@@ -46,6 +55,7 @@ const ContactInfoScreen = (props) => {
 
   const dispatch = useDispatch();
 
+  //func to switch favorite status
   const toggleFavoriteHandler = useCallback(async () => {
     try {
       await dispatch(toggleFavorite(conId, currentContactIsFav));
@@ -54,6 +64,7 @@ const ContactInfoScreen = (props) => {
     }
   }, [dispatch, conId, currentContactIsFav]);
 
+  //functionality for deleting contact
   const deleteAContact = useCallback(async () => {
     try {
       await dispatch(contactActions.deleteContact(conId));
@@ -62,14 +73,17 @@ const ContactInfoScreen = (props) => {
     }
   }, [dispatch, conId]);
 
+  //send togglefavorite action to the header button
   useEffect(() => {
     props.navigation.setParams({ toggleFav: toggleFavoriteHandler });
   }, [toggleFavoriteHandler]);
 
+  //send favorite status to header button
   useEffect(() => {
     props.navigation.setParams({ isFav: currentContactIsFav });
   }, [currentContactIsFav]);
 
+  //Alert to confirm to delete contact
   const deleteContact = () => {
     Alert.alert(
       "Deleting Contact",
@@ -95,6 +109,7 @@ const ContactInfoScreen = (props) => {
     );
   };
 
+  //JSX
   return (
     <ScrollView>
       <View style={styles.topSection}>
@@ -176,6 +191,7 @@ const ContactInfoScreen = (props) => {
   );
 };
 
+//This blcok controls the header and its buttons' functionality
 ContactInfoScreen.navigationOptions = (props) => {
   const toggleFavorite = props.navigation.getParam("toggleFav");
   const isFavorite = props.navigation.getParam("isFav");
@@ -198,6 +214,7 @@ ContactInfoScreen.navigationOptions = (props) => {
   };
 };
 
+//JSX
 const styles = StyleSheet.create({
   addtoFav: {
     marginTop: 15,
