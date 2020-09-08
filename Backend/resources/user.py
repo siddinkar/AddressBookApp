@@ -117,7 +117,7 @@ class Login(Resource):
         # global vars
         auth = request.authorization
         d = datetime.datetime.utcnow(
-        ) + datetime.timedelta(seconds=10)
+        ) + datetime.timedelta(days=10)
         for_js = d.isoformat()
         print(for_js)
 

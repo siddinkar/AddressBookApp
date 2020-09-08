@@ -24,6 +24,7 @@ import HeaderButton from "../components/HeaderButton";
 import { toggleFavorite } from "../store/actions/contacts";
 import * as contactActions from "../store/actions/contacts";
 import * as authActions from "../store/actions/auth";
+import { SMS } from "expo";
 
 const ContactInfoScreen = (props) => {
   //global vars
@@ -54,6 +55,8 @@ const ContactInfoScreen = (props) => {
   }
 
   const dispatch = useDispatch();
+
+  //sending an sms
 
   //func to switch favorite status
   const toggleFavoriteHandler = useCallback(async () => {
