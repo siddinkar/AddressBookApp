@@ -1,8 +1,3 @@
-/*
-This screen is the same as the home screen but only shows favortie contacts
-SEE HOME SCREEN FOR CODE COMMENTARY
-*/
-
 import React, { useState } from "react";
 import {
   View,

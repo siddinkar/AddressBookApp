@@ -1,7 +1,3 @@
-/*
-This the login screen where a user inputs their creds to get a key from the api to access their data from the database
-*/
-
 import React, { useState, useReducer, useEffect } from "react";
 import {
   View,
@@ -20,7 +16,6 @@ import Input from "../components/Input";
 
 const FORM_UPDATE = "UPDATE";
 
-// this watches the values, validity, and overall form validity of all the inputs on this screen
 const formReducer = (state, action) => {
   if (action.type === FORM_UPDATE) {
     const updatedValues = {
@@ -42,14 +37,11 @@ const formReducer = (state, action) => {
 };
 
 const LoginScreen = (props) => {
-  //global vars
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [usernameError, setUsernameError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [APIError, setAPIError] = useState("");
-
-  //This is the setup values and vlaiditys of the reducer above
   const [formState, dispatchFormState] = useReducer(formReducer, {
     inputValues: {
       username: "",
@@ -62,7 +54,6 @@ const LoginScreen = (props) => {
     formIsValid: true,
   });
 
-  //This is a generic text handler that updates values on change of text in inputs.
   const textChangeHandler = (inputIdentifier, text) => {
     let isValid = true;
 
@@ -74,8 +65,6 @@ const LoginScreen = (props) => {
     });
   };
 
-  //Checka all validities and updates the Redux State.
-  //Also this sends the api request and catches all errors to display to user
   const submitHandler = async () => {
     if (formState.formIsValid) {
       setIsLoading(true);
@@ -125,7 +114,6 @@ const LoginScreen = (props) => {
     }
   };
 
-  //JSX
   return (
     <KeyboardAvoidingView style={styles.screen}>
       <View style={styles.textContainer}>
@@ -169,7 +157,6 @@ const LoginScreen = (props) => {
   );
 };
 
-//StyleSheet
 const styles = StyleSheet.create({
   screen: { flex: 1, justifyContent: "center", alignItems: "center" },
   textContainer: {

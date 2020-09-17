@@ -1,7 +1,3 @@
-/*
-This is the main screen where the contacts are shown and where ou can navigate to the different screens
-*/
-
 import React, { useState, useEffect, useCallback } from "react";
 import {
   StyleSheet,
@@ -36,13 +32,24 @@ import * as contactActions from "../store/actions/contacts";
 import * as authActions from "../store/actions/auth";
 
 const HomeScreen = (props) => {
-  //global vars
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [contactName, setContactName] = useState([]);
   const dispatch = useDispatch();
 
-  //this func is called on load and fetches the values from the DataBase
+  const addNameHandler = (name) => {
+    setContactName((currentName) => [
+      ...contactName,
+      { id: Math.random().toString(), value: name },
+    ]);
+  };
+
+  const removeContact = (contactId) => {
+    setContactName((currentName) => {
+      return currentName.filter((contact) => contact.id !== contactId);
+    });
+  };
+
   const loadContacts = useCallback(async () => {
     setError(null);
     try {
@@ -52,7 +59,6 @@ const HomeScreen = (props) => {
     }
   });
 
-  //This is the implementation of above func
   useEffect(() => {
     setIsLoading(true);
     loadContacts().then(() => {
@@ -60,11 +66,8 @@ const HomeScreen = (props) => {
     });
   }, [dispatch, setError, setIsLoading]);
 
-  //sets value of current contact to the array of all contacts in reducer in redux store
   const currentContacts = useSelector((state) => state.contacts.contacts);
 
-  //This is running block that always checks if the error var gets updated to "Login"
-  //If api sends login error, you are logged out
   if (error === "Login") {
     Alert.alert(
       "Session has expired",
@@ -95,7 +98,6 @@ const HomeScreen = (props) => {
     );
   }
 
-  //JSX
   return (
     <View style={styles.screenMain}>
       {/*<View style={styles.screenTop}>
@@ -138,7 +140,6 @@ const HomeScreen = (props) => {
   );
 };
 
-//This handles all the header buttons, their visuals and their functionality
 HomeScreen.navigationOptions = (props) => {
   return {
     title: "Contacts",
@@ -172,7 +173,6 @@ HomeScreen.navigationOptions = (props) => {
   };
 };
 
-//Stylesheet
 const styles = StyleSheet.create({
   cardContainer: {
     justifyContent: "center",

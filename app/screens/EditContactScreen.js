@@ -1,8 +1,3 @@
-/*
-This screen is for editing the contacts and adding contacts. It changes functinoality slightly based on where 
-you nav from.
-*/
-
 import React, { useCallback, useEffect, useReducer, useState } from "react";
 import {
   View,
@@ -27,7 +22,6 @@ import * as authActions from "../store/actions/auth";
 
 const FORM_UPDATE = "UPDATE";
 
-//This is the reducer which monitors and watches the changes in values. This watches values, validities and overall form validity
 const formReducer = (state, action) => {
   if (action.type === FORM_UPDATE) {
     const updatedValues = {
@@ -59,8 +53,6 @@ const EditContactScreen = (props) => {
 
   const dispatch = useDispatch();
   const [error, setError] = useState(null);
-
-  //Action reducer that sets up reducer and updates it
   const [formState, dispatchFormState] = useReducer(formReducer, {
     inputValues: {
       name: contactId ? Contact.name : "",
@@ -79,8 +71,6 @@ const EditContactScreen = (props) => {
     formIsValid: contactId ? true : false,
   });
 
-  //This is running block that always checks if the error var gets updated to "Login"
-  //If api sends login error, you are logged out
   if (error === "Login") {
     Alert.alert(
       "Session has expired",
@@ -97,7 +87,6 @@ const EditContactScreen = (props) => {
     );
   }
 
-  //Checka all validities and updates the Redux State. Also this sends the api request and catches all errors to display to user
   const submitHandler = useCallback(async () => {
     if (formState.formIsValid) {
       if (Contact) {
@@ -142,12 +131,10 @@ const EditContactScreen = (props) => {
     }
   }, [dispatch, contactId, formState]);
 
-  //sends the validation to the buttons at the header
   useEffect(() => {
     props.navigation.setParams({ submit: submitHandler });
   }, [submitHandler]);
 
-  //Functionality for button that discards changes
   const discardChanges = () => {
     Alert.alert(
       "Discarding Changes",
@@ -170,7 +157,6 @@ const EditContactScreen = (props) => {
     );
   };
 
-  //This func checks the format of the phone number to validate it.
   const formatPhoneNumber = (phoneNumberString) => {
     var cleaned = phoneNumberString.replace(/\D/g, "");
     var match = cleaned.match(/^(1|)?(\d{3})(\d{3})(\d{4})$/);
@@ -189,7 +175,6 @@ const EditContactScreen = (props) => {
     return cleaned;
   };
 
-  //generic input validity checker
   const regTextChangeHandler = (inputIdentifier, text) => {
     let isValid = false;
     if (text.trim().length > 0) {
@@ -202,8 +187,6 @@ const EditContactScreen = (props) => {
       input: inputIdentifier,
     });
   };
-
-  //This checks if the input formatted phone number is ready for submisiom
   const phoneHandler = (text) => {
     let isValid = false;
     var cleaned = text.replace(/\D/g, "");
@@ -221,7 +204,6 @@ const EditContactScreen = (props) => {
     });
   };
 
-  //this checks if the email is valid based on its format
   const emailHandler = (text) => {
     let isValid = false;
     var match = text.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);
@@ -238,7 +220,6 @@ const EditContactScreen = (props) => {
     });
   };
 
-  //JSX
   return (
     <KeyboardAvoidingView>
       <ScrollView>
@@ -360,7 +341,6 @@ const EditContactScreen = (props) => {
   );
 };
 
-//This handles the setup and functionlity of header buttons
 EditContactScreen.navigationOptions = (props) => {
   const submitFunc = props.navigation.getParam("submit");
 
@@ -383,7 +363,6 @@ EditContactScreen.navigationOptions = (props) => {
   };
 };
 
-//StyleSheet
 const styles = StyleSheet.create({
   addtoFav: {
     marginTop: 15,

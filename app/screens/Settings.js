@@ -1,7 +1,3 @@
-/*
-This is an work in progress screen. Only has logout functionality for testing purposes
-*/
-
 import React, { useEffect } from "react";
 import {
   View,
@@ -17,7 +13,6 @@ import { useDispatch } from "react-redux";
 const Settings = (props) => {
   const dispatch = useDispatch();
 
-  //JSX for logout button
   return (
     <View style={styles.center}>
       <Button
@@ -31,7 +26,6 @@ const Settings = (props) => {
   );
 };
 
-//StyleSheet
 const styles = StyleSheet.create({
   center: {
     flex: 1,
