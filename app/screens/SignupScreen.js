@@ -103,13 +103,17 @@ const SignupScreen = (props) => {
       setError(false);
       setAPIError("");
       try {
+        console.log("kkk");
+
         await dispatch(
           authActions.signup(
             formState.inputValues.username,
             formState.inputValues.password
           )
         );
+        console.log("tt");
         props.navigation.navigate("Main");
+        console.log("yyy");
       } catch (err) {
         if (err) {
           setAPIError(err.message);

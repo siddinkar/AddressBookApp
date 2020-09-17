@@ -18,6 +18,7 @@ import StartScreen from "../app/screens/StartScreen";
 import Settings from "../app/screens/Settings";
 import { createDrawerNavigator, DrawerItems } from "react-navigation-drawer";
 import { View, Button, SafeAreaView } from "react-native";
+import MapScreen from "../app/screens/MapScreen";
 
 //Subnavigator for control flow of editing/viewing a contact from home screen
 const AddNavigator = createStackNavigator({
@@ -51,6 +52,17 @@ const Navigator = createMaterialBottomTabNavigator(
         tabBarIcon: (tabInfo) => {
           //button for navigation in footer
           return <Icon name="ios-star" size={25} color={tabInfo.tintColor} />;
+        },
+      },
+    },
+    Map: {
+      screen: MapScreen,
+      navigationOptions: {
+        tabBarIcon: (tabInfo) => {
+          return (
+            //new button added for nav to "Settings" in footer
+            <Icon name="ios-map" size={28} color={tabInfo.tintColor} />
+          );
         },
       },
     },

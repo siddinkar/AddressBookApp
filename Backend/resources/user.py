@@ -161,6 +161,7 @@ class Contacts(Resource):
     def post(current_user, self):
         # requires JSON body in req
         json_data = request.get_json(force=True)
+        print(json_data)
         if not json_data:
             return {'message': 'No input data provided'}, 400
 

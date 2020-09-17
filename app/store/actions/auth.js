@@ -57,7 +57,7 @@ export const signup = (username, password) => {
         const token = resData["token"];
         const expiry = resData["expiresIn"];
         const exp = expiry.substring(0, 23) + "Z";
-        const expTime = exp.getTime() - new Date().getTime();
+        const expTime = new Date(exp).getTime() - new Date().getTime();
         //authenticate using the info sent by api
         dispatch(authenticate(token, expTime));
         //save the token to the async storage for reuse and auto login

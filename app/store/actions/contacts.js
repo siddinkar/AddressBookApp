@@ -161,8 +161,11 @@ export const createContact = (
     console.log("request sent to api");
     //special error code which sends user to auth page
     if (response.status === 401) {
+      console.log("login err thrown");
+
       throw new Error("Login");
     } else if (!response.ok) {
+      console.log("err thrown");
       throw new Error("Something went wrong");
     }
     //parses JSON data
