@@ -1,3 +1,3 @@
 # AddressBookApp
 
-React Native Practice Project
+React Native + Flask Practice Project
